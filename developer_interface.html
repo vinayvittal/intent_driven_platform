@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intent-Based Developer Platform — New Developer Interface</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: #f8fafc;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 1rem;
+      color: #94a3b8;
+      margin-bottom: 48px;
+    }
+    .diagram-section {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 40px;
+      border: 1px solid #334155;
+    }
+    .diagram-section h2 {
+      font-size: 1.25rem;
+      color: #38bdf8;
+      margin-bottom: 6px;
+    }
+    .diagram-section p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .mermaid svg { max-width: 100%; height: auto; }
+    footer {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.8rem;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Intent-Based Developer Platform</h1>
+    <p class="subtitle">New Developer Interface — Vinay Vittal</p>
+
+    <!-- Diagram 1: Developer Interaction Sequence -->
+    <div class="diagram-section">
+      <h2>1. Developer Interaction Flow</h2>
+      <p>End-to-end sequence from natural language intent to production deployment. The developer never leaves the IDE.</p>
+      <div class="mermaid">
+sequenceDiagram
+    actor Dev as Developer (IDE / CLI)
+    participant Agent as Intent Agent
+    participant Intent as Intent Understanding Layer
+    participant Policy as Policy Engine
+    participant Config as Configuration Mapping
+    participant Git as Git Repository
+    participant CICD as CI/CD Pipeline
+
+    Dev->>Agent: "Deploy a Tier-2 Python FastAPI service,<br/>1k RPS, us-east-1 and us-west-2"
+    Agent->>Intent: Parse natural language to structured JSON
+    Intent-->>Agent: {service_type: python-fastapi,<br/>tier: tier-2, target_rps: 1000,<br/>regions: [us-east-1, us-west-2]}
+
+    Agent->>Dev: "Here is what I understood:<br/>Tier-2, FastAPI, 1k RPS, 2 regions. Confirm?"
+    Dev->>Agent: "Yes, proceed"
+
+    Agent->>Policy: Validate against tier definitions,<br/>security rules, compliance
+    Policy-->>Agent: Passed — Tier-2 = 2 replicas,<br/>multi-region, standard limits
+
+    Agent->>Config: Generate K8s YAML<br/>(Deployment, Service, Ingress,<br/>ConfigMap, Observability)
+    Config-->>Agent: YAML files with explanation comments
+
+    Agent->>Dev: "Preview your configs:<br/>deployment.yaml, service.yaml,<br/>ingress.yaml — approve?"
+    Dev->>Agent: "Looks good, commit it"
+
+    Agent->>Git: Commit YAML to feature branch
+    Git-->>CICD: PR triggers pipeline
+    CICD-->>Dev: Deployment successful
+      </div>
+    </div>
+
+    <!-- Diagram 2: Architecture Component View -->
+    <div class="diagram-section">
+      <h2>2. Platform Architecture</h2>
+      <p>Component view of the intelligence layers. Blue = agent runtime, purple = intelligence layers built in-house, amber = human-in-the-loop checkpoint.</p>
+      <div class="mermaid">
+flowchart TD
+    A["fa:fa-laptop Developer IDE / CLI"] --> B["fa:fa-robot Intent Agent"]
+    B --> C["Intent Understanding Layer"]
+    C --> D["Structured JSON Spec"]
+    D --> E["Policy Engine"]
+    E -->|Validated| F["Configuration Mapping"]
+    E -->|Violation| G["Remediation Guidance"]
+    G --> A
+    F --> H["Generated YAML Configs"]
+    H --> I["Developer Preview and Approval"]
+    I -->|Approved| J["Git Commit to Branch"]
+    I -->|Rejected / Edit| A
+    J --> K["CI/CD Pipeline"]
+    K --> L["fa:fa-server Kubernetes Cluster"]
+
+    style A fill:#0f172a,color:#e2e8f0,stroke:#38bdf8
+    style B fill:#2563eb,color:#fff,stroke:#1d4ed8
+    style C fill:#7c3aed,color:#fff,stroke:#6d28d9
+    style D fill:#334155,color:#e2e8f0,stroke:#475569
+    style E fill:#7c3aed,color:#fff,stroke:#6d28d9
+    style F fill:#7c3aed,color:#fff,stroke:#6d28d9
+    style G fill:#ef4444,color:#fff,stroke:#dc2626
+    style H fill:#334155,color:#e2e8f0,stroke:#475569
+    style I fill:#f59e0b,color:#000,stroke:#d97706
+    style J fill:#334155,color:#e2e8f0,stroke:#475569
+    style K fill:#334155,color:#e2e8f0,stroke:#475569
+    style L fill:#0f172a,color:#e2e8f0,stroke:#38bdf8
+      </div>
+    </div>
+
+    <!-- Diagram 3: Intent Parsing Detail -->
+    <div class="diagram-section">
+      <h2>3. Intent Understanding — Parse, Validate, Confirm</h2>
+      <p>Detailed view of how natural language is transformed into a validated, normalized deployment spec before any config is generated.</p>
+      <div class="mermaid">
+flowchart LR
+    A["Natural Language Input"] --> B["LLM Inference"]
+    B --> C["Raw Parsed JSON"]
+    C --> D{"Validation"}
+    D -->|Missing fields| E["Clarification Prompt"]
+    E --> A
+    D -->|Valid| F["Normalization"]
+    F --> G{"Confidence >= 0.8?"}
+    G -->|No| H["Flag for Human Review"]
+    H --> A
+    G -->|Yes| I["Confirmed Intent Spec"]
+    I --> J["Send to Policy Engine"]
+
+    style A fill:#7c3aed,color:#fff
+    style B fill:#2563eb,color:#fff
+    style I fill:#16a34a,color:#fff
+    style J fill:#16a34a,color:#fff
+    style E fill:#f59e0b,color:#000
+    style H fill:#f59e0b,color:#000
+    style D fill:#334155,color:#e2e8f0
+    style G fill:#334155,color:#e2e8f0
+      </div>
+    </div>
+
+    <!-- Diagram 4: Before vs After -->
+    <div class="diagram-section">
+      <h2>4. Before vs After — A Developer's Tuesday Afternoon</h2>
+      <p>Side-by-side comparison of the deployment workflow before and after the Intent Agent.</p>
+      <div class="mermaid">
+flowchart TB
+    subgraph BEFORE["BEFORE: Without Intent Agent (~4.5 hours)"]
+        direction TB
+        B1["Code Complete"] --> B2["Open K8s Docs"]
+        B2 --> B3["Write deployment.yaml manually"]
+        B3 --> B4["Write service.yaml, ingress.yaml"]
+        B4 --> B5["Write configmap.yaml, secrets"]
+        B5 --> B6["Slack platform team with questions"]
+        B6 --> B7["Wait for response..."]
+        B7 --> B8["Update YAML with answers"]
+        B8 --> B9["Push — CI fails — debug"]
+        B9 --> B10["Fix, re-push"]
+        B10 --> B11["Missing observability — open ticket"]
+    end
+
+    subgraph AFTER["AFTER: With Intent Agent (~20 minutes)"]
+        direction TB
+        A1["Code Complete"] --> A2["Describe intent in IDE"]
+        A2 --> A3["Agent parses and confirms"]
+        A3 --> A4["Agent generates all YAML"]
+        A4 --> A5["Developer reviews preview"]
+        A5 --> A6["Approve — agent commits"]
+        A6 --> A7["CI/CD deploys to production"]
+        A7 --> A8["Back to building features"]
+    end
+
+    style BEFORE fill:#1e293b,color:#f87171,stroke:#ef4444
+    style AFTER fill:#1e293b,color:#4ade80,stroke:#22c55e
+    style B1 fill:#334155,color:#e2e8f0
+    style B2 fill:#334155,color:#e2e8f0
+    style B3 fill:#334155,color:#e2e8f0
+    style B4 fill:#334155,color:#e2e8f0
+    style B5 fill:#334155,color:#e2e8f0
+    style B6 fill:#ef4444,color:#fff
+    style B7 fill:#ef4444,color:#fff
+    style B8 fill:#334155,color:#e2e8f0
+    style B9 fill:#ef4444,color:#fff
+    style B10 fill:#334155,color:#e2e8f0
+    style B11 fill:#ef4444,color:#fff
+    style A1 fill:#334155,color:#e2e8f0
+    style A2 fill:#2563eb,color:#fff
+    style A3 fill:#7c3aed,color:#fff
+    style A4 fill:#7c3aed,color:#fff
+    style A5 fill:#f59e0b,color:#000
+    style A6 fill:#16a34a,color:#fff
+    style A7 fill:#16a34a,color:#fff
+    style A8 fill:#16a34a,color:#fff
+      </div>
+    </div>
+
+    <footer>Intent-Based Developer Platform by Vinay Vittal | Generated with Claude Code</footer>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      sequence: { mirrorActors: false, actorMargin: 60, messageMargin: 40 },
+      flowchart: { curve: 'basis', padding: 16 }
+    });
+  </script>
+</body>
+</html>
